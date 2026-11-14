@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/floating_card"
+    android:layout_width="210dp"
+    android:layout_height="52dp"
+    app:cardBackgroundColor="#00000000"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="12dp"
+    app:strokeColor="#50FFFFFF"
+    app:strokeWidth="1.2dp">
+
+    <FrameLayout
+        android:id="@+id/floating_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_floating_popup"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- Content Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
+
+            <!-- Small Cover Image Thumbnail -->
+            <ImageView
+                android:id="@+id/iv_floating_cover"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_circle_translucent"
+                android:contentDescription="@null"
+                android:padding="1dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/mustre" />
+
+            <!-- Title and Artist Column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_floating_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="Song Title" />
+
+                <TextView
+                    android:id="@+id/tv_floating_artist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="10.5sp"
+                    tools:text="Artist Name" />
+            </LinearLayout>
+
+            <!-- Animated Audio Visualizer (4 bars) -->
+            <LinearLayout
+                android:id="@+id/floating_visualizer"
+                android:layout_width="22dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="6dp"
+                android:gravity="bottom|center_horizontal"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/floating_bar1"
+                    android:layout_width="2.5dp"
+                    android:layout_height="15dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#FFFFFFFF" />
+
+                <View
+                    android:id="@+id/floating_bar2"
+                    android:layout_width="2.5dp"
+                    android:layout_height="15dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#FFFFFFFF" />
+
+                <View
+                    android:id="@+id/floating_bar3"
+                    android:layout_width="2.5dp"
+                    android:layout_height="15dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#FFFFFFFF" />
+
+                <View
+                    android:id="@+id/floating_bar4"
+                    android:layout_width="2.5dp"
+                    android:layout_height="15dp"
+                    android:background="#FFFFFFFF" />
+            </LinearLayout>
+
+            <!-- Play/Pause ImageButton -->
+            <ImageButton
+                android:id="@+id/btn_floating_play_pause"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/btn_circle_ripple"
+                android:contentDescription="@string/cd_play_pause"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_play"
+                app:tint="#FFFFFFFF" />
+
+            <!-- Close Floating Player Window Button -->
+            <ImageButton
+                android:id="@+id/btn_floating_close"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="2dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cd_close"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_close"
+                app:tint="#80FFFFFF" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</com.google.android.material.card.MaterialCardView>

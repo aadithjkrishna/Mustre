@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/bg_item_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="10dp">
+
+    <!-- Active Indicator Dot/Radio -->
+    <ImageView
+        android:id="@+id/iv_url_active_indicator"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_circle_checked"
+        app:tint="#FF00FFCC" />
+
+    <!-- Server URL Text -->
+    <TextView
+        android:id="@+id/tv_saved_url"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="middle"
+        android:maxLines="1"
+        android:textColor="#FFFFFFFF"
+        android:textSize="13sp"
+        tools:text="http://192.168.1.104:3000" />
+
+    <!-- Delete Button -->
+    <ImageView
+        android:id="@+id/btn_delete_saved_url"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@null"
+        android:padding="5dp"
+        android:src="@drawable/ic_close"
+        app:tint="#B3FFFFFF" />
+
+</LinearLayout>

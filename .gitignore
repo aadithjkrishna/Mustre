@@ -1,0 +1,15 @@
+# Android Studio / IntelliJ project files
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+
+# Build artifacts
+/build
+app/build/
+*.apk
+/captures
+.externalNativeBuild
+.cxx
+local.properties

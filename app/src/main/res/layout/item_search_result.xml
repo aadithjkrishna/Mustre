@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/bg_item_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
+
+    <!-- Search Result Thumbnail -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_search_thumbnail"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="12dp"
+        android:background="#20FFFFFF"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/mustre"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small" />
+
+    <!-- Title and Channel/Artist Column -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_search_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#FFFFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            tools:text="YouTube Video Title" />
+
+        <TextView
+            android:id="@+id/tv_search_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#B3FFFFFF"
+            android:textSize="11sp"
+            tools:text="Channel Name • YouTube" />
+    </LinearLayout>
+
+    <!-- Small Size Badge (For Telegram search results) -->
+    <TextView
+        android:id="@+id/tv_search_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:background="@drawable/bg_quality_badge"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:textColor="#D0FFFFFF"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:text="34.2 MB"
+        tools:visibility="visible" />
+
+    <!-- Loading Spinner (Shown when fetching stream URL) -->
+    <ProgressBar
+        android:id="@+id/pb_search_loading"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:indeterminate="true"
+        android:indeterminateTint="#FFFFFFFF"
+        android:visibility="gone" />
+
+    <!-- Play Icon -->
+    <ImageView
+        android:id="@+id/iv_search_play_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_play"
+        app:tint="#B3FFFFFF" />
+
+</LinearLayout>
