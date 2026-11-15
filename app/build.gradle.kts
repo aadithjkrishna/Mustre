@@ -17,8 +17,8 @@ android {
         minSdk = 34
         targetSdk = 37
         // Force devices to upgrade from builds made before LAN HTTP support was added.
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
 //        buildConfigField("String", "BASE_URL", "\"https://rog-strix.tail68d919.ts.net\"")
 //        buildConfigField("String", "BASE_URL", "\"http://192.168.18.67:3000\"")

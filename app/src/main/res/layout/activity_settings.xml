@@ -368,6 +368,312 @@
                         android:layout_marginVertical="12dp"
                         android:background="#15FFFFFF" />
 
+                    <!-- Haptic Feedback (Controls & UI) -->
+                    <LinearLayout
+                        android:id="@+id/header_haptic_feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Haptic Feedback"
+                                android:textColor="#FFFFFFFF"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tactile vibrations on playback controls, scrubbing, seekbar, and gestures"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_haptic_feedback"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+
+                        <ImageView
+                            android:id="@+id/iv_expand_haptic_feedback"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="4dp"
+                            android:padding="2dp"
+                            android:contentDescription="Expand"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#80FFFFFF" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_expand_haptic_feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Controls Vibration Strength"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tv_haptic_strength_val"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Medium"
+                                android:textColor="#FF00FFCC"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_haptic_strength"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:stepSize="1.0"
+                            android:value="2.0"
+                            android:valueFrom="1.0"
+                            android:valueTo="3.0"
+                            app:thumbColor="#FF00FFCC"
+                            app:trackColorActive="#FF00FFCC"
+                            app:trackColorInactive="#33FFFFFF" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="#15FFFFFF" />
+
+                    <!-- Line Lyrics Haptics -->
+                    <LinearLayout
+                        android:id="@+id/header_line_lyrics_haptics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Line Lyrics Haptics"
+                                android:textColor="#FFFFFFFF"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Deep tactile pulse when each synchronized lyrics line begins"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_line_lyrics_haptics"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+
+                        <ImageView
+                            android:id="@+id/iv_expand_line_lyrics"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="4dp"
+                            android:padding="2dp"
+                            android:contentDescription="Expand"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#80FFFFFF" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_expand_line_lyrics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Line Pulse Strength"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tv_line_lyrics_strength_val"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Medium"
+                                android:textColor="#FF00FFCC"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_line_lyrics_strength"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:stepSize="1.0"
+                            android:value="2.0"
+                            android:valueFrom="1.0"
+                            android:valueTo="3.0"
+                            app:thumbColor="#FF00FFCC"
+                            app:trackColorActive="#FF00FFCC"
+                            app:trackColorInactive="#33FFFFFF" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="#15FFFFFF" />
+
+                    <!-- Word Lyrics Haptics -->
+                    <LinearLayout
+                        android:id="@+id/header_word_lyrics_haptics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Word Lyrics Haptics"
+                                android:textColor="#FFFFFFFF"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Crisp rhythmic micro-ticks synchronized to each sung word"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_word_lyrics_haptics"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+
+                        <ImageView
+                            android:id="@+id/iv_expand_word_lyrics"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="4dp"
+                            android:padding="2dp"
+                            android:contentDescription="Expand"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#80FFFFFF" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layout_expand_word_lyrics"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Word Tick Strength"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tv_word_lyrics_strength_val"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Medium"
+                                android:textColor="#FF00FFCC"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_word_lyrics_strength"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:stepSize="1.0"
+                            android:value="2.0"
+                            android:valueFrom="1.0"
+                            android:valueTo="3.0"
+                            app:thumbColor="#FF00FFCC"
+                            app:trackColorActive="#FF00FFCC"
+                            app:trackColorInactive="#33FFFFFF" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="12dp"
+                        android:background="#15FFFFFF" />
+
                     <!-- Prefetch Count Setting -->
                     <LinearLayout
                         android:layout_width="match_parent"

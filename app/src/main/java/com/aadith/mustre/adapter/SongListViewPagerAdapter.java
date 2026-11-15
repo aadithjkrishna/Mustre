@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aadith.mustre.util.HapticHelper;
+
 public class SongListViewPagerAdapter extends RecyclerView.Adapter<SongListViewPagerAdapter.PageViewHolder> {
 
     private final SongAdapter songAdapter;
@@ -41,6 +43,7 @@ public class SongListViewPagerAdapter extends RecyclerView.Adapter<SongListViewP
         recyclerView.setLayoutManager(new LinearLayoutManager(parent.getContext()));
         recyclerView.setClipToPadding(false);
         recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        recyclerView.addOnScrollListener(new HapticHelper.WeightedScrollListener(parent.getContext(), 56));
 
         switch (viewType) {
             case 0:

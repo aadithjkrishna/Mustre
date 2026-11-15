@@ -33,6 +33,16 @@ public class ServerPrefs {
     private static final String KEY_CONTRAST_PROTECTION_ENABLED = "contrast_protection_enabled";
     private static final String KEY_POPUP_PLAYER_ENABLED = "popup_player_enabled";
     private static final String KEY_OLED_MODE_ENABLED = "oled_mode_enabled";
+    private static final String KEY_HAPTIC_FEEDBACK_ENABLED = "haptic_feedback_enabled";
+    private static final String KEY_LYRICS_HAPTICS_ENABLED = "lyrics_haptics_enabled";
+    private static final String KEY_LINE_LYRICS_HAPTICS_ENABLED = "line_lyrics_haptics_enabled";
+    private static final String KEY_WORD_LYRICS_HAPTICS_ENABLED = "word_lyrics_haptics_enabled";
+    private static final String KEY_HAPTIC_STRENGTH = "haptic_strength";
+    private static final String KEY_LINE_LYRICS_HAPTIC_STRENGTH = "line_lyrics_haptic_strength";
+    private static final String KEY_WORD_LYRICS_HAPTIC_STRENGTH = "word_lyrics_haptic_strength";
+    public static final int HAPTIC_STRENGTH_LIGHT = 1;
+    public static final int HAPTIC_STRENGTH_MEDIUM = 2;
+    public static final int HAPTIC_STRENGTH_STRONG = 3;
     private static final String KEY_PREFETCH_COUNT = "prefetch_count";
     private static final String KEY_REPEAT_MODE = "repeat_mode";
     private static final String KEY_SAVED_SERVER_URLS = "saved_server_urls";
@@ -152,6 +162,87 @@ public class ServerPrefs {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_OFFLINE_MODE_ENABLED, enabled).apply();
+    }
+
+    public static boolean isHapticFeedbackEnabled(Context context) {
+        if (context == null) return true;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_HAPTIC_FEEDBACK_ENABLED, true);
+    }
+
+    public static void setHapticFeedbackEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_HAPTIC_FEEDBACK_ENABLED, enabled).apply();
+    }
+
+    public static boolean isLyricsHapticsEnabled(Context context) {
+        return isLineLyricsHapticsEnabled(context) || isWordLyricsHapticsEnabled(context);
+    }
+
+    public static void setLyricsHapticsEnabled(Context context, boolean enabled) {
+        setLineLyricsHapticsEnabled(context, enabled);
+        setWordLyricsHapticsEnabled(context, enabled);
+    }
+
+    public static boolean isLineLyricsHapticsEnabled(Context context) {
+        if (context == null) return true;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_LINE_LYRICS_HAPTICS_ENABLED, true);
+    }
+
+    public static void setLineLyricsHapticsEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_LINE_LYRICS_HAPTICS_ENABLED, enabled).apply();
+    }
+
+    public static boolean isWordLyricsHapticsEnabled(Context context) {
+        if (context == null) return true;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_WORD_LYRICS_HAPTICS_ENABLED, true);
+    }
+
+    public static void setWordLyricsHapticsEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_WORD_LYRICS_HAPTICS_ENABLED, enabled).apply();
+    }
+
+    public static int getHapticStrength(Context context) {
+        if (context == null) return HAPTIC_STRENGTH_MEDIUM;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_HAPTIC_STRENGTH, HAPTIC_STRENGTH_MEDIUM);
+    }
+
+    public static void setHapticStrength(Context context, int strength) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_HAPTIC_STRENGTH, strength).apply();
+    }
+
+    public static int getLineLyricsHapticStrength(Context context) {
+        if (context == null) return HAPTIC_STRENGTH_MEDIUM;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_LINE_LYRICS_HAPTIC_STRENGTH, HAPTIC_STRENGTH_MEDIUM);
+    }
+
+    public static void setLineLyricsHapticStrength(Context context, int strength) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_LINE_LYRICS_HAPTIC_STRENGTH, strength).apply();
+    }
+
+    public static int getWordLyricsHapticStrength(Context context) {
+        if (context == null) return HAPTIC_STRENGTH_MEDIUM;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_WORD_LYRICS_HAPTIC_STRENGTH, HAPTIC_STRENGTH_MEDIUM);
+    }
+
+    public static void setWordLyricsHapticStrength(Context context, int strength) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_WORD_LYRICS_HAPTIC_STRENGTH, strength).apply();
     }
 
     public static boolean isNetworkAvailable(Context context) {

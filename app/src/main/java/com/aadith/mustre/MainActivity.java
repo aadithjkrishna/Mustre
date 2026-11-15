@@ -66,6 +66,7 @@ import com.aadith.mustre.ui.PanelAnimationController;
 import com.aadith.mustre.ui.QualityMetadataHelper;
 import com.aadith.mustre.ui.SongInfoDialogHelper;
 import com.aadith.mustre.ui.VisualizerController;
+import com.aadith.mustre.util.HapticHelper;
 import com.aadith.mustre.util.ImageUtils;
 import com.aadith.mustre.util.TimeUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
     private final Handler updateHandler = new Handler(Looper.getMainLooper());
     private Runnable updateSeekBarRunnable;
     private boolean isUserSeeking = false;
+    private int lastSeekbarNotchProgress = -1;
 
     private MusicService musicService;
     private boolean isServiceBound = false;
@@ -308,12 +310,18 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         if (badgeAudioQuality != null) {
             badgeAudioQuality.setClickable(true);
             badgeAudioQuality.setFocusable(true);
-            badgeAudioQuality.setOnClickListener(v -> showSongInfoDialog());
+            badgeAudioQuality.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                showSongInfoDialog();
+            });
         }
         if (tvQualityText != null) {
             tvQualityText.setClickable(true);
             tvQualityText.setFocusable(true);
-            tvQualityText.setOnClickListener(v -> showSongInfoDialog());
+            tvQualityText.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                showSongInfoDialog();
+            });
         }
 
         seekbarAudio = findViewById(R.id.seekbar_audio);
@@ -446,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         if (rvSearchResults != null) {
             rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
             rvSearchResults.setAdapter(searchResultAdapter);
+            rvSearchResults.addOnScrollListener(new HapticHelper.WeightedScrollListener(this, 56));
         }
     }
 
@@ -461,6 +470,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         ViewPager2 viewpagerLandscape = findViewById(R.id.viewpager_landscape);
 
         View.OnClickListener clearQueueListener = v -> {
+            HapticHelper.dismiss(v);
             if (musicService != null) {
                 musicService.clearQueue();
                 Toast.makeText(MainActivity.this, "Queue cleared", Toast.LENGTH_SHORT).show();
@@ -560,11 +570,13 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         }
 
         View.OnClickListener songsTabListener = v -> {
+            HapticHelper.segmentTick(v);
             if (viewpagerPortrait != null) viewpagerPortrait.setCurrentItem(0, true);
             if (viewpagerLandscape != null) viewpagerLandscape.setCurrentItem(0, true);
         };
 
         View.OnClickListener queueTabListener = v -> {
+            HapticHelper.segmentTick(v);
             if (viewpagerPortrait != null) viewpagerPortrait.setCurrentItem(1, true);
             if (viewpagerLandscape != null) viewpagerLandscape.setCurrentItem(1, true);
         };
@@ -580,6 +592,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         ImageButton btnNext = findViewById(R.id.btn_next);
 
         btnPlayPause.setOnClickListener(v -> {
+            HapticHelper.playPauseClick(v);
             if (trackPlaybackManager.isSongDownloading()) {
                 Toast.makeText(this, "Downloading song from server...", Toast.LENGTH_SHORT).show();
                 return;
@@ -588,6 +601,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         });
 
         btnNext.setOnClickListener(v -> {
+            HapticHelper.lightTick(v);
             if (trackPlaybackManager.isSongDownloading()) {
                 trackPlaybackManager.setSongDownloading(false);
                 trackPlaybackManager.stopSeekBarLoadingAnimation(seekbarAudio);
@@ -596,6 +610,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         });
 
         btnPrevious.setOnClickListener(v -> {
+            HapticHelper.lightTick(v);
             if (trackPlaybackManager.isSongDownloading()) {
                 trackPlaybackManager.setSongDownloading(false);
                 trackPlaybackManager.stopSeekBarLoadingAnimation(seekbarAudio);
@@ -605,16 +620,25 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
 
         btnLyrics = findViewById(R.id.btn_lyrics);
         if (btnLyrics != null) {
-            btnLyrics.setOnClickListener(v -> togglePortraitLyrics());
+            btnLyrics.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                togglePortraitLyrics();
+            });
         }
 
         ImageButton btnSongListToggle = findViewById(R.id.btn_song_list_toggle);
         if (btnSongListToggle != null) {
-            btnSongListToggle.setOnClickListener(v -> togglePortraitSongList());
+            btnSongListToggle.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                togglePortraitSongList();
+            });
         }
 
         if (btnSettings != null) {
-            btnSettings.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+            btnSettings.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                startActivity(new Intent(this, SettingsActivity.class));
+            });
         }
 
         seekbarAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -622,16 +646,26 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     tvCurrentTime.setText(TimeUtils.formatTime(progress));
+                    int max = seekBar.getMax();
+                    int notchStepMs = Math.max(800, max / 70);
+                    if (lastSeekbarNotchProgress < 0 || Math.abs(progress - lastSeekbarNotchProgress) >= notchStepMs) {
+                        HapticHelper.performRotaryKnobTick(seekBar);
+                        lastSeekbarNotchProgress = progress;
+                    }
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 isUserSeeking = true;
+                lastSeekbarNotchProgress = seekBar.getProgress();
+                HapticHelper.dragStart(seekBar);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                lastSeekbarNotchProgress = -1;
+                HapticHelper.gestureEnd(seekBar);
                 if (musicService != null) {
                     musicService.seekTo(seekBar.getProgress());
                 }
@@ -647,6 +681,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
     private void setupSearchOverlay() {
         if (btnSearchToggle != null) {
             btnSearchToggle.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
                 expandSearchRectangle();
                 if (etSearch != null) {
                     etSearch.requestFocus();
@@ -659,7 +694,10 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
         }
 
         if (btnSearchClose != null) {
-            btnSearchClose.setOnClickListener(v -> collapseSearchRectangle());
+            btnSearchClose.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                collapseSearchRectangle();
+            });
         }
 
         ImageView ivSearchIcon = findViewById(R.id.iv_search_icon);
@@ -881,7 +919,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (oledModeController != null) {
-            oledModeController.onUserInteraction();
+            oledModeController.handleDispatchTouchEvent(ev);
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -898,13 +936,22 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
 
         String songQuality = song.getQuality();
         if (songQuality != null && !songQuality.trim().isEmpty()) {
-            badgeAudioQuality.setVisibility(View.VISIBLE);
+            if (oledModeController == null || !oledModeController.isOledActive()) {
+                badgeAudioQuality.setVisibility(View.VISIBLE);
+            }
             tvQualityText.setText(songQuality);
         }
 
         QualityMetadataHelper.updateQualityBadge(this, badgeAudioQuality, tvQualityText, song.getAudioPath(), ServerPrefs.formatFullUrl(getBaseUrl(), song.getAudioPath()), quality -> {
             if (songAdapter != null) Log.d(TAG, "Song quality detected: " + quality);
         });
+
+        if (oledModeController != null && oledModeController.isOledActive()) {
+            if (badgeAudioQuality != null) {
+                badgeAudioQuality.setVisibility(View.INVISIBLE);
+                badgeAudioQuality.setAlpha(0f);
+            }
+        }
         updateVisualizerState();
         loadLyricsForCurrentSong(false);
 
@@ -1083,6 +1130,7 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
             rvSyncedLyrics.setLayoutManager(new LinearLayoutManager(this));
             rvSyncedLyrics.setAdapter(lyricsAdapter);
             rvSyncedLyrics.setItemAnimator(null);
+            rvSyncedLyrics.addOnScrollListener(new HapticHelper.WeightedScrollListener(this, 50));
             rvSyncedLyrics.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -1097,8 +1145,15 @@ public class MainActivity extends AppCompatActivity implements MusicService.Musi
             });
         }
 
+        if (scrollPlainLyrics != null) {
+            HapticHelper.attachWeightedScrollListener(scrollPlainLyrics, 48);
+        }
+
         if (btnLyricsRetry != null) {
-            btnLyricsRetry.setOnClickListener(v -> loadLyricsForCurrentSong(true));
+            btnLyricsRetry.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                loadLyricsForCurrentSong(true);
+            });
         }
     }
 

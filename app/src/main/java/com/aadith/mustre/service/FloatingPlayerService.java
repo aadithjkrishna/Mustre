@@ -32,6 +32,7 @@ import androidx.media3.common.util.UnstableApi;
 import com.aadith.mustre.MainActivity;
 import com.aadith.mustre.R;
 import com.aadith.mustre.model.Song;
+import com.aadith.mustre.util.HapticHelper;
 
 @OptIn(markerClass = UnstableApi.class)
 public class FloatingPlayerService extends Service implements MusicService.MusicChangeListener {
@@ -119,12 +120,16 @@ public class FloatingPlayerService extends Service implements MusicService.Music
         setupTouchAndDragListener();
 
         btnPlayPause.setOnClickListener(v -> {
+            HapticHelper.playPauseClick(v);
             if (musicService != null) {
                 musicService.togglePlayPause();
             }
         });
 
-        btnClose.setOnClickListener(v -> stopSelf());
+        btnClose.setOnClickListener(v -> {
+            HapticHelper.dismiss(v);
+            stopSelf();
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !android.provider.Settings.canDrawOverlays(this)) {
             stopSelf();
@@ -248,6 +253,7 @@ public class FloatingPlayerService extends Service implements MusicService.Music
                                         singleTapRunnable = null;
                                     }
                                     lastTapTime = 0;
+                                    HapticHelper.segmentTick(v);
                                     // Double tap toggles preset width (175dp -> 220dp -> 280dp)
                                     currentPresetIndex = (currentPresetIndex + 1) % widthPresetsDp.length;
                                     int targetWidthDp = widthPresetsDp[currentPresetIndex];
@@ -260,6 +266,7 @@ public class FloatingPlayerService extends Service implements MusicService.Music
                                     lastTapTime = currentTime;
                                     // Single tap brings main app to front after confirming it's not a double tap
                                     singleTapRunnable = () -> {
+                                        HapticHelper.lightTick(v);
                                         Intent openAppIntent = new Intent(FloatingPlayerService.this, MainActivity.class);
                                         openAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                         startActivity(openAppIntent);

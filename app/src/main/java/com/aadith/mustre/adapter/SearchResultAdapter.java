@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aadith.mustre.R;
 import com.aadith.mustre.model.SearchResult;
 import com.aadith.mustre.network.ServerPrefs;
+import com.aadith.mustre.util.HapticHelper;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -174,6 +175,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
             if (ivPlayIcon != null) {
                 ivPlayIcon.setOnClickListener(v -> {
+                    HapticHelper.lightTick(v);
                     int adapterPos = getAdapterPosition();
                     if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
                         listener.onSearchResultPlayClick(result, adapterPos);
@@ -182,6 +184,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
             }
 
             itemView.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
                 int adapterPos = getAdapterPosition();
                 if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
                     listener.onSearchResultClick(result, adapterPos);

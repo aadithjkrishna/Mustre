@@ -66,7 +66,62 @@ public class LrcParser {
             prevWasEmpty = isEmpty;
         }
 
+        // Ensure every non-empty line has word-level timing (synthesizing proportional words if enhanced tags are absent)
+        for (int i = 0; i < cleaned.size(); i++) {
+            LyricLine line = cleaned.get(i);
+            if (!line.hasWords() && !line.isEmpty()) {
+                long lineStart = line.getTimeMs();
+                long lineEnd;
+                if (i + 1 < cleaned.size()) {
+                    long nextStart = cleaned.get(i + 1).getTimeMs();
+                    lineEnd = Math.min(lineStart + 6000L, Math.max(lineStart + 1200L, nextStart));
+                } else {
+                    lineEnd = lineStart + 4000L;
+                }
+                line.setWords(synthesizeWordsForLine(line.getText(), lineStart, lineEnd));
+            }
+        }
+
         return cleaned;
+    }
+
+    private static List<LyricWord> synthesizeWordsForLine(String text, long lineStart, long lineEnd) {
+        if (text == null || text.trim().isEmpty()) return null;
+        String trimmed = text.trim();
+        String[] tokens = trimmed.split("\\s+");
+        if (tokens.length == 0) return null;
+
+        List<LyricWord> words = new ArrayList<>(tokens.length);
+        long totalDuration = Math.max(800L, lineEnd - lineStart);
+        int totalChars = 0;
+        for (String t : tokens) {
+            totalChars += Math.max(1, t.length());
+        }
+
+        long currentStart = lineStart;
+        int searchIndex = 0;
+
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            int charStart = text.indexOf(token, searchIndex);
+            if (charStart < 0) charStart = searchIndex;
+            int charEnd = charStart + token.length();
+            searchIndex = charEnd;
+
+            long wordDuration;
+            if (i == tokens.length - 1) {
+                wordDuration = Math.max(200L, (lineStart + totalDuration) - currentStart);
+            } else {
+                float fraction = (float) Math.max(1, token.length()) / totalChars;
+                wordDuration = Math.max(200L, (long) (fraction * totalDuration));
+            }
+
+            long currentEnd = currentStart + wordDuration;
+            words.add(new LyricWord(token, currentStart, currentEnd, charStart, charEnd));
+            currentStart = currentEnd;
+        }
+
+        return words;
     }
 
     private static long parseTimestamp(String minStr, String secStr, String fracStr) {

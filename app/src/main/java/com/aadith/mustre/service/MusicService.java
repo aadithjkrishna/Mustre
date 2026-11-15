@@ -84,9 +84,37 @@ public class MusicService extends Service {
     private List<Song> songList; // This acts as the queue
     private int currentSongIndex = 0;
     private int repeatMode = Player.REPEAT_MODE_OFF;
-    private Song lastPlayedSong;
+    private final java.util.ArrayDeque<Song> playbackHistory = new java.util.ArrayDeque<>();
     private Bitmap currentCoverBitmap;
     private Format currentAudioFormat;
+
+    private void addToHistory(Song song) {
+        if (song == null) return;
+        if (!playbackHistory.isEmpty() && playbackHistory.peek() == song) return;
+        playbackHistory.push(song);
+        while (playbackHistory.size() > 50) {
+            playbackHistory.removeLast();
+        }
+    }
+
+    private int findSongIndexInOriginalList(Song song) {
+        if (song == null || originalList == null || originalList.isEmpty()) return -1;
+        String path = song.getAudioPath();
+        String title = song.getTitle();
+        String artist = song.getArtist();
+        for (int i = 0; i < originalList.size(); i++) {
+            Song s = originalList.get(i);
+            if (s == null) continue;
+            if (path != null && s.getAudioPath() != null && path.equalsIgnoreCase(s.getAudioPath())) {
+                return i;
+            }
+            if (title != null && s.getTitle() != null && title.equalsIgnoreCase(s.getTitle())
+                    && artist != null && s.getArtist() != null && artist.equalsIgnoreCase(s.getArtist())) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public interface MusicChangeListener {
         void onSongChanged(Song song, int index);
@@ -426,7 +454,7 @@ public class MusicService extends Service {
         if (songList != null && index >= 0 && index < songList.size()) {
             Song removed = songList.remove(index);
             if (index == 0) {
-                lastPlayedSong = removed;
+                addToHistory(removed);
                 checkAndReplenishQueue();
                 if (!songList.isEmpty()) {
                     currentSongIndex = 0;
@@ -446,6 +474,7 @@ public class MusicService extends Service {
         if (songList != null) {
             songList.clear();
             currentSongIndex = -1;
+            playbackHistory.clear();
             notifyQueueChanged();
             triggerPrefetch();
         }
@@ -453,16 +482,23 @@ public class MusicService extends Service {
 
     public synchronized void playImmediate(Song song) {
         MediaCacheManager.cancelPreload();
-        if (songList == null || songList.isEmpty()) {
-            songList = new java.util.ArrayList<>();
-            songList.add(song);
-            currentSongIndex = 0;
-        } else {
-            songList.set(currentSongIndex, song);
+        if (song == null) return;
+        Song current = getCurrentSong();
+        if (current != null && !current.equals(song)) {
+            addToHistory(current);
         }
+        if (songList == null) {
+            songList = new java.util.ArrayList<>();
+        }
+        if (songList.isEmpty()) {
+            songList.add(song);
+        } else {
+            songList.add(0, song);
+        }
+        currentSongIndex = 0;
         checkAndReplenishQueue();
         notifyQueueChanged();
-        playSong(currentSongIndex, true);
+        playSong(0, true);
     }
 
     public synchronized void updateQueueOrder(List<Song> newOrder) {
@@ -510,7 +546,7 @@ public class MusicService extends Service {
         // Remove all songs before the requested index (already played / skipped)
         while (index > 0 && !songList.isEmpty()) {
             Song removed = songList.remove(0);
-            lastPlayedSong = removed;
+            addToHistory(removed);
             index--;
         }
         currentSongIndex = 0;
@@ -698,16 +734,19 @@ public class MusicService extends Service {
 
         if (songList != null && songList.size() > 1) {
             Song finished = songList.remove(0);
+            addToHistory(finished);
             if (mode == Player.REPEAT_MODE_ALL) {
                 songList.add(finished);
-            } else {
-                lastPlayedSong = finished;
             }
             notifyQueueChanged();
             playSong(0, true);
         } else if (originalList != null && !originalList.isEmpty()) {
-            currentSongIndex = (currentSongIndex + 1) % originalList.size();
-            Song nextSong = originalList.get(currentSongIndex);
+            Song current = getCurrentSong();
+            addToHistory(current);
+            int currentIdx = findSongIndexInOriginalList(current);
+            if (currentIdx < 0) currentIdx = 0;
+            int nextIdx = (currentIdx + 1) % originalList.size();
+            Song nextSong = originalList.get(nextIdx);
             playImmediate(nextSong);
         } else {
             currentSongIndex = -1;
@@ -724,14 +763,29 @@ public class MusicService extends Service {
             return;
         }
 
-        if (lastPlayedSong != null) {
-            songList.add(0, lastPlayedSong);
-            lastPlayedSong = null;
+        if (!playbackHistory.isEmpty()) {
+            Song prevSong = playbackHistory.pop();
+            if (songList == null) {
+                songList = new java.util.ArrayList<>();
+            }
+            songList.add(0, prevSong);
+            currentSongIndex = 0;
+            checkAndReplenishQueue();
+            notifyQueueChanged();
             playSong(0, true);
         } else if (originalList != null && !originalList.isEmpty()) {
-            currentSongIndex = (currentSongIndex - 1 + originalList.size()) % originalList.size();
-            Song prevSong = originalList.get(currentSongIndex);
-            playImmediate(prevSong);
+            int currentIdx = findSongIndexInOriginalList(getCurrentSong());
+            if (currentIdx < 0) currentIdx = 0;
+            int prevIdx = (currentIdx - 1 + originalList.size()) % originalList.size();
+            Song prevSong = originalList.get(prevIdx);
+            if (songList == null) {
+                songList = new java.util.ArrayList<>();
+            }
+            songList.add(0, prevSong);
+            currentSongIndex = 0;
+            checkAndReplenishQueue();
+            notifyQueueChanged();
+            playSong(0, true);
         } else if (player != null) {
             player.seekTo(0);
         }
@@ -743,7 +797,9 @@ public class MusicService extends Service {
             return songList.get(1);
         }
         if (originalList != null && !originalList.isEmpty()) {
-            int idx = (currentSongIndex + 1) % originalList.size();
+            int currentIdx = findSongIndexInOriginalList(getCurrentSong());
+            if (currentIdx < 0) currentIdx = 0;
+            int idx = (currentIdx + 1) % originalList.size();
             return originalList.get(idx);
         }
         return getCurrentSong();
@@ -751,11 +807,13 @@ public class MusicService extends Service {
 
     public synchronized Song getPreviousSong() {
         if (!hasSongs()) return null;
-        if (lastPlayedSong != null) {
-            return lastPlayedSong;
+        if (!playbackHistory.isEmpty()) {
+            return playbackHistory.peek();
         }
         if (originalList != null && !originalList.isEmpty()) {
-            int idx = (currentSongIndex - 1 + originalList.size()) % originalList.size();
+            int currentIdx = findSongIndexInOriginalList(getCurrentSong());
+            if (currentIdx < 0) currentIdx = 0;
+            int idx = (currentIdx - 1 + originalList.size()) % originalList.size();
             return originalList.get(idx);
         }
         return getCurrentSong();

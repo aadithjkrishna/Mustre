@@ -20,7 +20,7 @@
 
 Download the latest pre-compiled release APK directly from GitHub:
 
-📥 **[Download Mustre v1.0.1 APK](https://github.com/aadithjkrishna/Mustre/releases/download/v1.0.1/app-release.apk)**
+📥 **[Download Mustre v1.0.2 APK](https://github.com/aadithjkrishna/Mustre/releases/download/v1.0.2/app-release.apk)**
 
 *(Compatible with Android 14+, API 34+)*
 

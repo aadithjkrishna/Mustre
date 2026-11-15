@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aadith.mustre.R;
 import com.aadith.mustre.model.LyricLine;
 import com.aadith.mustre.model.LyricWord;
+import com.aadith.mustre.util.HapticHelper;
+import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,9 @@ public class LyricsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final OnLyricLineClickListener listener;
     private int activePosition = -1;
     private long currentPositionMs = 0;
+    private int lastHapticLineIndex = -1;
+    private int lastHapticWordIndex = -1;
+    private Context context;
 
     public LyricsAdapter(OnLyricLineClickListener listener) {
         this.listener = listener;
@@ -64,6 +69,8 @@ public class LyricsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
         this.activePosition = -1;
         this.currentPositionMs = 0;
+        this.lastHapticLineIndex = -1;
+        this.lastHapticWordIndex = -1;
         notifyDataSetChanged();
     }
 
@@ -95,11 +102,46 @@ public class LyricsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             int old = this.activePosition;
             this.activePosition = newActivePosition;
             notifyLinesChanged(old, newActivePosition);
+
+            if (newActivePosition >= 0 && newActivePosition < lines.size()) {
+                LyricLine newLine = lines.get(newActivePosition);
+                lastHapticWordIndex = -1;
+                if (newActivePosition != lastHapticLineIndex) {
+                    lastHapticLineIndex = newActivePosition;
+                    if (context != null) {
+                        HapticHelper.performLyricLineHaptic(context);
+                        if (newLine != null && newLine.hasWords()) {
+                            checkWordHaptic(newLine, positionMs);
+                        }
+                    }
+                }
+            }
         } else if (activePosition >= 0 && activePosition < lines.size()) {
             LyricLine activeLine = lines.get(activePosition);
             if (activeLine != null && activeLine.hasWords()) {
+                checkWordHaptic(activeLine, positionMs);
                 notifyItemChanged(activePosition, PAYLOAD_WORD_HIGHLIGHT);
             }
+        }
+    }
+
+    private void checkWordHaptic(LyricLine activeLine, long positionMs) {
+        if (activeLine == null || !activeLine.hasWords() || context == null) return;
+        List<LyricWord> words = activeLine.getWords();
+        if (words == null || words.isEmpty()) return;
+
+        int activeWordIdx = -1;
+        for (int i = 0; i < words.size(); i++) {
+            LyricWord w = words.get(i);
+            if (positionMs >= w.getStartMs() && positionMs < w.getEndMs()) {
+                activeWordIdx = i;
+                break;
+            }
+        }
+
+        if (activeWordIdx != -1 && activeWordIdx != lastHapticWordIndex) {
+            lastHapticWordIndex = activeWordIdx;
+            HapticHelper.performLyricWordHaptic(context);
         }
     }
 
@@ -197,6 +239,9 @@ public class LyricsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (context == null) {
+            context = parent.getContext();
+        }
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == VIEW_TYPE_FOOTER) {
             View view = inflater.inflate(R.layout.item_lyrics_footer, parent, false);
@@ -243,6 +288,7 @@ public class LyricsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         boolean isCentralNeighbor = isJustPlayed || isAboutToPlay;
 
         lineHolder.itemView.setOnClickListener(v -> {
+            HapticHelper.lightTick(v);
             if (listener != null) {
                 long targetTimeMs = line.getTimeMs();
                 if (line.hasWords() && lineHolder.lastTouchX >= 0 && lineHolder.lastTouchY >= 0) {

@@ -23,6 +23,7 @@ import com.aadith.mustre.R;
 import com.aadith.mustre.model.Song;
 import com.aadith.mustre.network.ServerPrefs;
 import com.aadith.mustre.service.MusicService;
+import com.aadith.mustre.util.HapticHelper;
 
 @OptIn(markerClass = UnstableApi.class)
 public class PanelAnimationController {
@@ -250,6 +251,7 @@ public class PanelAnimationController {
 
     public void togglePortraitSongList(VisualizerController visualizerController, MusicService musicService) {
         if (cardCover == null || portraitSongListPanel == null) return;
+        HapticHelper.segmentTick(activityRoot);
 
         float density = activityRoot.getResources().getDisplayMetrics().density;
         float screenWidthPx = activityRoot.getResources().getDisplayMetrics().widthPixels;
@@ -330,6 +332,7 @@ public class PanelAnimationController {
 
     public void togglePortraitLyrics(VisualizerController visualizerController, MusicService musicService) {
         if (cardCover == null || portraitLyricsPanel == null) return;
+        HapticHelper.segmentTick(activityRoot);
 
         float density = activityRoot.getResources().getDisplayMetrics().density;
         float screenWidthPx = activityRoot.getResources().getDisplayMetrics().widthPixels;
@@ -410,6 +413,7 @@ public class PanelAnimationController {
 
     public void closeAllPortraitPanels(VisualizerController visualizerController, MusicService musicService) {
         if (cardCover == null) return;
+        HapticHelper.gestureEnd(activityRoot);
 
         float density = activityRoot.getResources().getDisplayMetrics().density;
         boolean isPortraitMode = activityRoot.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT;
@@ -562,6 +566,7 @@ public class PanelAnimationController {
     }
 
     public void expandSearchRectangle(boolean isPortraitMode) {
+        HapticHelper.lightTick(searchBarContainer);
         if (isPortraitMode) {
             if (searchBarContainer != null && searchBarContainer.getVisibility() != View.VISIBLE) {
                 searchBarContainer.animate().cancel();
@@ -609,6 +614,7 @@ public class PanelAnimationController {
     }
 
     public void collapseSearchRectangle(EditText etSearch, boolean isPortraitMode) {
+        HapticHelper.lightTick(searchBarContainer);
         if (isPortraitMode) {
             if (searchBarContainer != null && searchBarContainer.getVisibility() == View.VISIBLE) {
                 searchBarContainer.animate().cancel();
@@ -754,7 +760,7 @@ public class PanelAnimationController {
         float titleBaseX = getTitleTargetX(density, screenWidthPx);
         float artistBaseX = getArtistTargetX(density, screenWidthPx);
 
-        float exitOffset = isNext ? (screenWidthPx * 0.6f) : (-screenWidthPx * 0.6f);
+        float exitOffset = isNext ? (-screenWidthPx * 0.6f) : (screenWidthPx * 0.6f);
         float enterOffset = -exitOffset;
 
         View anchorView = cardCover != null ? cardCover : (tvTitleView != null ? tvTitleView : activityRoot);
@@ -952,15 +958,18 @@ public class PanelAnimationController {
                             if (!isAnyPortraitPanelOpen()) {
                                 float currentFraction = -deltaYUp / totalDragPx;
                                 if (currentFraction > 0.25f || deltaYUp < -60f) {
+                                    HapticHelper.gestureEnd(activityRoot);
                                     animateToState(true, visualizerController, musicService);
                                 } else {
                                     animateToState(false, visualizerController, musicService);
                                     if (deltaYUp > 60f && ServerPrefs.isPopupPlayerEnabled(activityRoot.getContext()) && musicService != null && musicService.hasSongs() && listener != null) {
+                                        HapticHelper.gestureEnd(activityRoot);
                                         listener.onFloatingPlayerDrop((int) event.getRawX(), (int) event.getRawY());
                                     }
                                 }
                             } else {
                                 if (deltaYUp > 60f) {
+                                    HapticHelper.gestureEnd(activityRoot);
                                     closeAllPortraitPanels(visualizerController, musicService);
                                 } else {
                                     animateToState(true, visualizerController, musicService);
@@ -974,6 +983,7 @@ public class PanelAnimationController {
                             boolean isPrevious = deltaXUp > (40f * density);
 
                             if ((isNext || isPrevious) && cardCoverIncoming != null) {
+                                HapticHelper.segmentTick(cardCover);
                                 float exitRotation = isNext ? -65f : 65f;
 
                                 cardCover.animate().cancel();
@@ -1034,11 +1044,13 @@ public class PanelAnimationController {
                             float deltaXUp = event.getRawX() - startX;
                             float threshold = 35f * density;
                             if (deltaXUp > threshold) {
-                                // Swipe right -> Next song
-                                animateMiniHeaderTrackSwitch(true, musicService);
-                            } else if (deltaXUp < -threshold) {
-                                // Swipe left -> Previous song
+                                // Swipe right -> Previous song
+                                HapticHelper.segmentTick(activityRoot);
                                 animateMiniHeaderTrackSwitch(false, musicService);
+                            } else if (deltaXUp < -threshold) {
+                                // Swipe left -> Next song
+                                HapticHelper.segmentTick(activityRoot);
+                                animateMiniHeaderTrackSwitch(true, musicService);
                             } else {
                                 animateMiniHeaderReset();
                             }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aadith.mustre.R;
 import com.aadith.mustre.model.Song;
 import com.aadith.mustre.network.ServerPrefs;
+import com.aadith.mustre.util.HapticHelper;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             songList.remove(position);
             notifyItemRemoved(position);
             updateSelectedPosition();
+            HapticHelper.dismiss(null);
         }
     }
 
@@ -79,6 +81,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
         }
         notifyItemMoved(fromPosition, toPosition);
+        HapticHelper.segmentTick(null);
         if (listener != null) {
             listener.onItemsSwapped(songList);
         }
@@ -241,6 +244,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     ivPlayIcon.setOnClickListener(null);
                     ivPlayIcon.setOnTouchListener((v, event) -> {
                         if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+                            HapticHelper.dragStart(v);
                             if (dragListener != null) {
                                 dragListener.onStartDrag(SongViewHolder.this);
                             }
@@ -251,6 +255,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     ivPlayIcon.setImageResource(R.drawable.ic_play);
                     ivPlayIcon.setOnTouchListener(null);
                     ivPlayIcon.setOnClickListener(v -> {
+                        HapticHelper.lightTick(v);
                         int adapterPos = getAdapterPosition();
                         if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
                             listener.onSongPlayClick(song, adapterPos);
@@ -260,6 +265,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
 
             itemView.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
                 int adapterPos = getAdapterPosition();
                 if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
                     listener.onSongClick(song, adapterPos);

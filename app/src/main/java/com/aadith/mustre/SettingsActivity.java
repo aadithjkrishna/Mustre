@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.aadith.mustre.network.HttpHandler;
 import com.aadith.mustre.network.ServerPrefs;
+import com.aadith.mustre.util.HapticHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
@@ -36,6 +37,9 @@ public class SettingsActivity extends AppCompatActivity {
     private SwitchMaterial switchContrastProtection;
     private SwitchMaterial switchPopupPlayer;
     private SwitchMaterial switchOledMode;
+    private SwitchMaterial switchHapticFeedback;
+    private SwitchMaterial switchLineLyricsHaptics;
+    private SwitchMaterial switchWordLyricsHaptics;
     private LinearLayout containerSavedUrls;
 
     @androidx.annotation.OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
@@ -46,7 +50,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         ImageButton btnBack = findViewById(R.id.btn_settings_back);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+            btnBack.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                finish();
+            });
         }
 
         etServerUrl = findViewById(R.id.et_settings_server_url);
@@ -55,11 +62,13 @@ public class SettingsActivity extends AppCompatActivity {
         switchContrastProtection = findViewById(R.id.switch_contrast_protection);
         switchPopupPlayer = findViewById(R.id.switch_popup_player);
         switchOledMode = findViewById(R.id.switch_oled_mode);
+        switchHapticFeedback = findViewById(R.id.switch_haptic_feedback);
         containerSavedUrls = findViewById(R.id.container_saved_server_urls);
 
         MaterialButton btnAddServerUrl = findViewById(R.id.btn_add_server_url);
         if (btnAddServerUrl != null) {
             btnAddServerUrl.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
                 if (etServerUrl != null) {
                     String input = etServerUrl.getText().toString().trim();
                     if (!input.isEmpty()) {
@@ -90,6 +99,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (switchOfflineMode != null) {
             switchOfflineMode.setChecked(ServerPrefs.isOfflineModeEnabled(this));
             switchOfflineMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                HapticHelper.toggle(buttonView, isChecked);
                 ServerPrefs.setOfflineModeEnabled(this, isChecked);
                 Toast.makeText(this, isChecked ? "Offline Mode Enabled" : "Offline Mode Disabled", Toast.LENGTH_SHORT).show();
             });
@@ -98,6 +108,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (switchContrastProtection != null) {
             switchContrastProtection.setChecked(ServerPrefs.isContrastProtectionEnabled(this));
             switchContrastProtection.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                HapticHelper.toggle(buttonView, isChecked);
                 ServerPrefs.setContrastProtectionEnabled(this, isChecked);
                 Toast.makeText(this, isChecked ? "Contrast Protection Enabled" : "Contrast Protection Disabled", Toast.LENGTH_SHORT).show();
             });
@@ -106,6 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (switchPopupPlayer != null) {
             switchPopupPlayer.setChecked(ServerPrefs.isPopupPlayerEnabled(this));
             switchPopupPlayer.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                HapticHelper.toggle(buttonView, isChecked);
                 ServerPrefs.setPopupPlayerEnabled(this, isChecked);
                 Toast.makeText(this, isChecked ? "Floating Pop Up Player Enabled" : "Floating Pop Up Player Disabled", Toast.LENGTH_SHORT).show();
 
@@ -131,8 +143,127 @@ public class SettingsActivity extends AppCompatActivity {
         if (switchOledMode != null) {
             switchOledMode.setChecked(ServerPrefs.isOledModeEnabled(this));
             switchOledMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                HapticHelper.toggle(buttonView, isChecked);
                 ServerPrefs.setOledModeEnabled(this, isChecked);
                 Toast.makeText(this, isChecked ? "OLED Mode Enabled (10s idle)" : "OLED Mode Disabled", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // 1. Controls & UI Haptic Feedback (Expandable)
+        View headerHaptic = findViewById(R.id.header_haptic_feedback);
+        View layoutExpandHaptic = findViewById(R.id.layout_expand_haptic_feedback);
+        ImageView ivExpandHaptic = findViewById(R.id.iv_expand_haptic_feedback);
+        setupExpandableSection(headerHaptic, layoutExpandHaptic, ivExpandHaptic);
+
+        if (switchHapticFeedback != null) {
+            switchHapticFeedback.setChecked(ServerPrefs.isHapticFeedbackEnabled(this));
+            switchHapticFeedback.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                ServerPrefs.setHapticFeedbackEnabled(this, isChecked);
+                HapticHelper.toggle(buttonView, isChecked);
+                if (isChecked && layoutExpandHaptic != null && layoutExpandHaptic.getVisibility() != View.VISIBLE) {
+                    layoutExpandHaptic.setVisibility(View.VISIBLE);
+                    if (ivExpandHaptic != null) ivExpandHaptic.animate().rotation(180f).setDuration(200).start();
+                }
+                Toast.makeText(this, isChecked ? "Haptic Feedback Enabled" : "Haptic Feedback Disabled", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        Slider sliderHapticStrength = findViewById(R.id.slider_haptic_strength);
+        TextView tvHapticStrengthVal = findViewById(R.id.tv_haptic_strength_val);
+        if (sliderHapticStrength != null) {
+            int currentStrength = ServerPrefs.getHapticStrength(this);
+            sliderHapticStrength.setValue((float) currentStrength);
+            updateStrengthText(tvHapticStrengthVal, currentStrength);
+
+            sliderHapticStrength.addOnChangeListener((slider, value, fromUser) -> {
+                int strength = (int) value;
+                ServerPrefs.setHapticStrength(SettingsActivity.this, strength);
+                updateStrengthText(tvHapticStrengthVal, strength);
+                if (fromUser) {
+                    HapticHelper.testStrengthHaptic(slider, strength);
+                }
+            });
+        }
+
+        // 2. Line Lyrics Haptics (Expandable)
+        View headerLineLyrics = findViewById(R.id.header_line_lyrics_haptics);
+        View layoutExpandLineLyrics = findViewById(R.id.layout_expand_line_lyrics);
+        ImageView ivExpandLineLyrics = findViewById(R.id.iv_expand_line_lyrics);
+        setupExpandableSection(headerLineLyrics, layoutExpandLineLyrics, ivExpandLineLyrics);
+
+        switchLineLyricsHaptics = findViewById(R.id.switch_line_lyrics_haptics);
+        if (switchLineLyricsHaptics != null) {
+            switchLineLyricsHaptics.setChecked(ServerPrefs.isLineLyricsHapticsEnabled(this));
+            switchLineLyricsHaptics.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                ServerPrefs.setLineLyricsHapticsEnabled(this, isChecked);
+                if (isChecked) {
+                    HapticHelper.performLyricLineHaptic(this);
+                    if (layoutExpandLineLyrics != null && layoutExpandLineLyrics.getVisibility() != View.VISIBLE) {
+                        layoutExpandLineLyrics.setVisibility(View.VISIBLE);
+                        if (ivExpandLineLyrics != null) ivExpandLineLyrics.animate().rotation(180f).setDuration(200).start();
+                    }
+                } else {
+                    HapticHelper.toggle(buttonView, false);
+                }
+                Toast.makeText(this, isChecked ? "Line Lyrics Haptics Enabled" : "Line Lyrics Haptics Disabled", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        Slider sliderLineLyricsStrength = findViewById(R.id.slider_line_lyrics_strength);
+        TextView tvLineLyricsStrengthVal = findViewById(R.id.tv_line_lyrics_strength_val);
+        if (sliderLineLyricsStrength != null) {
+            int currentLineStrength = ServerPrefs.getLineLyricsHapticStrength(this);
+            sliderLineLyricsStrength.setValue((float) currentLineStrength);
+            updateStrengthText(tvLineLyricsStrengthVal, currentLineStrength);
+
+            sliderLineLyricsStrength.addOnChangeListener((slider, value, fromUser) -> {
+                int strength = (int) value;
+                ServerPrefs.setLineLyricsHapticStrength(SettingsActivity.this, strength);
+                updateStrengthText(tvLineLyricsStrengthVal, strength);
+                if (fromUser) {
+                    HapticHelper.testLineLyricsStrengthHaptic(slider, strength);
+                }
+            });
+        }
+
+        // 3. Word Lyrics Haptics (Expandable)
+        View headerWordLyrics = findViewById(R.id.header_word_lyrics_haptics);
+        View layoutExpandWordLyrics = findViewById(R.id.layout_expand_word_lyrics);
+        ImageView ivExpandWordLyrics = findViewById(R.id.iv_expand_word_lyrics);
+        setupExpandableSection(headerWordLyrics, layoutExpandWordLyrics, ivExpandWordLyrics);
+
+        switchWordLyricsHaptics = findViewById(R.id.switch_word_lyrics_haptics);
+        if (switchWordLyricsHaptics != null) {
+            switchWordLyricsHaptics.setChecked(ServerPrefs.isWordLyricsHapticsEnabled(this));
+            switchWordLyricsHaptics.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                ServerPrefs.setWordLyricsHapticsEnabled(this, isChecked);
+                if (isChecked) {
+                    HapticHelper.performLyricWordHaptic(this);
+                    if (layoutExpandWordLyrics != null && layoutExpandWordLyrics.getVisibility() != View.VISIBLE) {
+                        layoutExpandWordLyrics.setVisibility(View.VISIBLE);
+                        if (ivExpandWordLyrics != null) ivExpandWordLyrics.animate().rotation(180f).setDuration(200).start();
+                    }
+                } else {
+                    HapticHelper.toggle(buttonView, false);
+                }
+                Toast.makeText(this, isChecked ? "Word Lyrics Haptics Enabled" : "Word Lyrics Haptics Disabled", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        Slider sliderWordLyricsStrength = findViewById(R.id.slider_word_lyrics_strength);
+        TextView tvWordLyricsStrengthVal = findViewById(R.id.tv_word_lyrics_strength_val);
+        if (sliderWordLyricsStrength != null) {
+            int currentWordStrength = ServerPrefs.getWordLyricsHapticStrength(this);
+            sliderWordLyricsStrength.setValue((float) currentWordStrength);
+            updateStrengthText(tvWordLyricsStrengthVal, currentWordStrength);
+
+            sliderWordLyricsStrength.addOnChangeListener((slider, value, fromUser) -> {
+                int strength = (int) value;
+                ServerPrefs.setWordLyricsHapticStrength(SettingsActivity.this, strength);
+                updateStrengthText(tvWordLyricsStrengthVal, strength);
+                if (fromUser) {
+                    HapticHelper.testWordLyricsStrengthHaptic(slider, strength);
+                }
             });
         }
 
@@ -147,6 +278,9 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             sliderPrefetchCount.addOnChangeListener((slider, value, fromUser) -> {
+                if (fromUser) {
+                    HapticHelper.segmentTick(slider);
+                }
                 int count = (int) value;
                 ServerPrefs.setPrefetchCount(SettingsActivity.this, count);
                 if (tvPrefetchCountVal != null) {
@@ -156,11 +290,15 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         if (btnTestConnection != null) {
-            btnTestConnection.setOnClickListener(v -> testServerConnection());
+            btnTestConnection.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
+                testServerConnection();
+            });
         }
 
         if (btnClearCache != null) {
             btnClearCache.setOnClickListener(v -> {
+                HapticHelper.dismiss(v);
                 ServerPrefs.clearAllCache(this);
                 com.aadith.mustre.network.MediaCacheManager.clearCache(this);
                 new Thread(() -> {
@@ -205,6 +343,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
 
             itemView.setOnClickListener(v -> {
+                HapticHelper.lightTick(v);
                 ServerPrefs.setServerUrl(SettingsActivity.this, url);
                 if (etServerUrl != null) {
                     etServerUrl.setText(url);
@@ -214,6 +353,7 @@ public class SettingsActivity extends AppCompatActivity {
             });
 
             btnDelete.setOnClickListener(v -> {
+                HapticHelper.dismiss(v);
                 ServerPrefs.removeSavedServerUrl(SettingsActivity.this, url);
                 renderSavedServerUrlsList();
             });
@@ -333,6 +473,39 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    private void setupExpandableSection(View header, View expandLayout, ImageView chevron) {
+        if (header == null || expandLayout == null || chevron == null) return;
+        View.OnClickListener toggleExpand = v -> {
+            HapticHelper.lightTick(v);
+            boolean isVisible = expandLayout.getVisibility() == View.VISIBLE;
+            if (isVisible) {
+                expandLayout.setVisibility(View.GONE);
+                chevron.animate().rotation(0f).setDuration(200).start();
+            } else {
+                expandLayout.setVisibility(View.VISIBLE);
+                chevron.animate().rotation(180f).setDuration(200).start();
+            }
+        };
+        header.setOnClickListener(toggleExpand);
+        chevron.setOnClickListener(toggleExpand);
+    }
+
+    private void updateStrengthText(TextView tv, int strength) {
+        if (tv == null) return;
+        switch (strength) {
+            case ServerPrefs.HAPTIC_STRENGTH_LIGHT:
+                tv.setText("Light");
+                break;
+            case ServerPrefs.HAPTIC_STRENGTH_STRONG:
+                tv.setText("Strong");
+                break;
+            case ServerPrefs.HAPTIC_STRENGTH_MEDIUM:
+            default:
+                tv.setText("Medium");
+                break;
+        }
     }
 
     @Override
